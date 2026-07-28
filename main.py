@@ -1,24 +1,32 @@
 from app.core.startup import startup
-from app.core.tool_registry import registry
+from app.agent.planner import Planner
+from app.agent.executor import Executor
 
 
 def main():
+
     startup()
 
-    print("\nAvailable Tools\n")
+    planner = Planner()
 
-    for tool in registry.list_tools():
-        print("-", tool)
+    executor = Executor()
 
-    print("\nTesting Chrome...\n")
+    print("\n===================================")
+    print("       JARVIS AI TERMINAL")
+    print("===================================")
+    print("Type 'exit' to quit.\n")
 
-    # registry.execute("open_chrome")
+    while True:
 
-    # Test VS Code
-    # registry.execute("open_vscode")
+        command = input("Jarvis > ")
 
-    # Test Calculator
-    registry.execute("open_calculator")
+        if command.lower() == "exit":
+            print("Good Bye.")
+            break
+
+        plan = planner.plan(command)
+
+        executor.execute(plan)
 
 
 if __name__ == "__main__":
