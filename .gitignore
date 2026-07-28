@@ -25,3 +25,8 @@ test-results/
 # OS
 .DS_Store
 Thumbs.db
+
+data/chrome_profile/
+*.log
+__pycache__/
+.venv/
