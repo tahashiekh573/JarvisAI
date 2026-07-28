@@ -1,30 +1,24 @@
 from typing import Callable, Dict
 
-
 class ToolRegistry:
-    """
-    Central registry for all executable tools.
-    """
 
-    def __init__(self):
-        self._tools: Dict[str, Callable] = {}
+    _instance = None
+    _tools = {}
 
-    def register(self, name: str, function: Callable):
-        """
-        Register a tool.
-        """
+    def __new__(cls):
 
-        if name in self._tools:
-            raise ValueError(f"Tool '{name}' is already registered.")
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
 
-        self._tools[name] = function
+        return cls._instance
+
+    def register(self, name, func):
+
+        self._tools[name] = func
 
         print(f"[REGISTERED] {name}")
 
-    def execute(self, name: str, *args, **kwargs):
-        """
-        Execute a registered tool.
-        """
+    def execute(self, name, *args, **kwargs):
 
         if name not in self._tools:
             raise ValueError(f"Tool '{name}' not found.")
@@ -32,11 +26,7 @@ class ToolRegistry:
         return self._tools[name](*args, **kwargs)
 
     def list_tools(self):
-        """
-        Return all registered tools.
-        """
 
         return list(self._tools.keys())
-
 
 registry = ToolRegistry()
