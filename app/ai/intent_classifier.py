@@ -1,20 +1,13 @@
+from app.ai.ai_engine import AIEngine
+
+
 class IntentClassifier:
 
-    def classify(self, command: str):
+    def __init__(self):
+        self.ai = AIEngine()
 
-        command = command.lower()
+    def classify(self, command):
 
-        if "chrome" in command:
-            return "open_chrome"
+        intent = self.ai.get_intent(command)
 
-        elif "calculator" in command or "calc" in command:
-            return "open_calculator"
-
-        elif "vs code" in command or "vscode" in command or "code" in command:
-            return "open_vscode"
-
-        elif "notepad" in command:
-            return "open_notepad"
-
-        else:
-            return "unknown"
+        return intent
