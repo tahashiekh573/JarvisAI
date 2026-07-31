@@ -3,9 +3,6 @@ import os
 
 
 class BrowserManager:
-    """
-    Singleton Browser Manager
-    """
 
     _playwright = None
     _context = None
@@ -14,53 +11,83 @@ class BrowserManager:
     @classmethod
     def start(cls):
 
-        if cls._context is None:
+        try:
 
-            cls._playwright = sync_playwright().start()
+            if (
+                cls._playwright is not None
+                and cls._context is not None
+                and cls._page is not None
+                and not cls._page.is_closed()
+            ):
+                return cls._page
 
-            # Jarvis ka apna Chrome Profile
-            chrome_profile = r"D:\JarvisAI\data\chrome_profile"
+        except Exception:
+            pass
 
-            # Folder create agar exist nahi karta
-            os.makedirs(chrome_profile, exist_ok=True)
+        cls.close()
 
-            cls._context = cls._playwright.chromium.launch_persistent_context(
-                user_data_dir=chrome_profile,
-                channel="chrome",
-                headless=False,
-                slow_mo=200,
-                viewport={"width": 1400, "height": 900},
-            )
+        cls._playwright = sync_playwright().start()
 
-            # Existing page use karo
-            if cls._context.pages:
-                cls._page = cls._context.pages[0]
-            else:
-                cls._page = cls._context.new_page()
+        chrome_profile = r"D:\JarvisAI\data\chrome_profile"
 
-            print("[SUCCESS] Browser Started")
+        os.makedirs(chrome_profile, exist_ok=True)
+
+        cls._context = cls._playwright.chromium.launch_persistent_context(
+            user_data_dir=chrome_profile,
+            channel="chrome",
+            headless=False,
+            slow_mo=200,
+            viewport={"width": 1400, "height": 900},
+        )
+
+        if cls._context.pages:
+            cls._page = cls._context.pages[0]
+        else:
+            cls._page = cls._context.new_page()
+
+        print("[SUCCESS] Browser Started")
 
         return cls._page
 
     @classmethod
     def page(cls):
 
-        if cls._page is None:
-            return cls.start()
+        try:
 
-        return cls._page
+            if cls._page is None:
+                return cls.start()
+
+            if cls._page.is_closed():
+
+                print("[INFO] Page Closed. Restarting Browser...")
+
+                return cls.start()
+
+            return cls._page
+
+        except Exception:
+
+            print("[INFO] Browser Invalid. Restarting...")
+
+            return cls.start()
 
     @classmethod
     def close(cls):
 
-        if cls._context:
+        try:
+            if cls._context:
+                cls._context.close()
+        except:
+            pass
 
-            cls._context.close()
+        try:
+            if cls._playwright:
+                cls._playwright.stop()
+        except:
+            pass
 
-            cls._playwright.stop()
+        cls._playwright = None
+        cls._context = None
+        cls._page = None
 
-            cls._context = None
-            cls._playwright = None
-            cls._page = None
-
-            print("[SUCCESS] Browser Closed")
+        print("[SUCCESS] Browser Closed")

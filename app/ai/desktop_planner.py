@@ -2,34 +2,37 @@ import json
 from ollama import chat
 
 
-class ReasoningEngine:
+class DesktopPlanner:
 
     def create_plan(self, command):
 
         prompt = f"""
-You are Jarvis AI.
+You are Jarvis AI Desktop Planner.
 
-Convert the user's command into a JSON execution plan.
+Convert the user's request into desktop actions.
 
-Available Actions:
+Available Desktop Tools:
 
-open_chrome
-open_calculator
-open_vscode
-open_notepad
+desktop_open_chrome
+desktop_open_calculator
+desktop_open_notepad
+desktop_open_vscode
 
 Rules:
 - Return ONLY valid JSON.
-- Do not explain.
-- Use this format exactly.
+- No explanation.
+
+Example:
 
 {{
-    "steps": [
-        "open_chrome"
+    "steps":[
+        {{
+            "tool":"desktop_open_calculator"
+        }}
     ]
 }}
 
-User Command:
+User Request:
 {command}
 """
 
@@ -45,14 +48,11 @@ User Command:
 
         raw = response["message"]["content"].strip()
 
-        print("[RAW]")
+        print("\n[RAW PLAN]")
         print(raw)
 
         try:
-            plan = json.loads(raw)
+            return json.loads(raw)
         except Exception:
-            plan = {
-                "steps": []
-            }
-
-        return plan
+            print("[ERROR] Invalid JSON")
+            return {"steps": []}
