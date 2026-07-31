@@ -25,8 +25,6 @@ class Chrome:
             print(f"[WARNING] {e}")
             print("[INFO] Restarting Browser...")
 
-            BrowserManager.close()
-
             page = BrowserManager.start()
 
             page.goto(
@@ -46,38 +44,74 @@ class Chrome:
 
             page.reload(wait_until="domcontentloaded")
 
-            print("[SUCCESS] Page Refreshed")
+        except Exception as e:
 
-        except Exception:
-
+            print(f"[WARNING] {e}")
             print("[INFO] Restarting Browser...")
 
-            BrowserManager.start()
+            page = BrowserManager.start()
+
+            page.reload(wait_until="domcontentloaded")
+
+        print("[SUCCESS] Page Refreshed")
 
     @staticmethod
     def back():
 
-        page = BrowserManager.page()
+        try:
 
-        page.go_back(wait_until="domcontentloaded")
+            page = BrowserManager.page()
+
+            page.go_back(wait_until="domcontentloaded")
+
+        except Exception as e:
+
+            print(f"[WARNING] {e}")
+            print("[INFO] Restarting Browser...")
+
+            page = BrowserManager.start()
+
+            page.go_back(wait_until="domcontentloaded")
 
         print("[SUCCESS] Back")
 
     @staticmethod
     def forward():
 
-        page = BrowserManager.page()
+        try:
 
-        page.go_forward(wait_until="domcontentloaded")
+            page = BrowserManager.page()
+
+            page.go_forward(wait_until="domcontentloaded")
+
+        except Exception as e:
+
+            print(f"[WARNING] {e}")
+            print("[INFO] Restarting Browser...")
+
+            page = BrowserManager.start()
+
+            page.go_forward(wait_until="domcontentloaded")
 
         print("[SUCCESS] Forward")
 
     @staticmethod
     def title():
 
-        page = BrowserManager.page()
+        try:
 
-        title = page.title()
+            page = BrowserManager.page()
+
+            title = page.title()
+
+        except Exception as e:
+
+            print(f"[WARNING] {e}")
+            print("[INFO] Restarting Browser...")
+
+            page = BrowserManager.start()
+
+            title = page.title()
 
         print(f"[TITLE] {title}")
 
@@ -86,9 +120,20 @@ class Chrome:
     @staticmethod
     def current_url():
 
-        page = BrowserManager.page()
+        try:
 
-        url = page.url
+            page = BrowserManager.page()
+
+            url = page.url
+
+        except Exception as e:
+
+            print(f"[WARNING] {e}")
+            print("[INFO] Restarting Browser...")
+
+            page = BrowserManager.start()
+
+            url = page.url
 
         print(f"[URL] {url}")
 
@@ -97,9 +142,20 @@ class Chrome:
     @staticmethod
     def screenshot(filename="screenshot.png"):
 
-        page = BrowserManager.page()
+        try:
 
-        page.screenshot(path=filename)
+            page = BrowserManager.page()
+
+            page.screenshot(path=filename)
+
+        except Exception as e:
+
+            print(f"[WARNING] {e}")
+            print("[INFO] Restarting Browser...")
+
+            page = BrowserManager.start()
+
+            page.screenshot(path=filename)
 
         print(f"[SUCCESS] Screenshot Saved : {filename}")
 
