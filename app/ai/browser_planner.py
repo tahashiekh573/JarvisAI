@@ -1,4 +1,5 @@
 import json
+import re
 from ollama import chat
 
 
@@ -9,77 +10,77 @@ class BrowserPlanner:
         prompt = f"""
 You are Jarvis Browser Planner.
 
-Your job is to convert the user's request into browser actions.
+Convert the user's request into browser actions.
 
-Available Browser Tools:
+==============================
+Available Browser Tools
+==============================
 
-1. browser_open
-   Parameters:
-   - url
+browser_open
+Parameters:
+url
 
-2. browser_title
+browser_title
 
-3. browser_current_url
+browser_current_url
 
-4. browser_extract_text
-   Parameters:
-   - selector
+browser_extract_text
+Parameters:
+selector
 
-5. browser_screenshot
-   Optional Parameters:
-   - filename
+browser_screenshot
+Optional:
+filename
 
-6. browser_refresh
+browser_refresh
 
-7. browser_back
+browser_back
 
-8. browser_forward
+browser_forward
 
-9. browser_close
+browser_close
 
-=========================
+browser_search
+Parameters:
+query
+
+browser_open_first_result
+
+browser_search_and_open
+Parameters:
+query
+
+browser_search_images
+Parameters:
+query
+
+browser_search_news
+Parameters:
+query
+
+==============================
 Rules
-=========================
+==============================
 
 1. Return ONLY valid JSON.
-2. Do NOT write explanations.
-3. Do NOT use markdown.
-4. Always return this format:
+2. No markdown.
+3. No explanation.
+4. Start with {{
+5. End with }}
+6. Always return:
 
 {{
-    "steps":[
-        {{
-            "tool":"browser_open",
-            "url":"https://example.com"
-        }}
-    ]
+    "steps":[]
 }}
 
-5. If browser_extract_text is used,
-ALWAYS provide a selector.
-
-Common selectors:
-
-Heading:
-"h1"
-
-Sub Heading:
-"h2"
-
-Paragraph:
-"p"
-
-Entire Page:
-"body"
-
-=========================
+==============================
 Examples
-=========================
+==============================
 
 User:
 Open python.org
 
-Output:
+Output
 
 {{
     "steps":[
@@ -90,12 +91,12 @@ Output:
     ]
 }}
 
--------------------------
+-----------------------------
 
 User:
-Open python.org and read the heading
+Open python.org and read heading
 
-Output:
+Output
 
 {{
     "steps":[
@@ -110,50 +111,113 @@ Output:
     ]
 }}
 
--------------------------
+-----------------------------
 
 User:
-Open python.org and read first paragraph
+Search ChatGPT
 
-Output:
+Output
 
 {{
     "steps":[
         {{
-            "tool":"browser_open",
-            "url":"https://python.org"
+            "tool":"browser_search",
+            "query":"ChatGPT"
+        }}
+    ]
+}}
+
+-----------------------------
+
+User:
+Search Python Tutorial
+
+Output
+
+{{
+    "steps":[
+        {{
+            "tool":"browser_search",
+            "query":"Python Tutorial"
+        }},
+        {{
+            "tool":"browser_open_first_result"
+        }}
+    ]
+}}
+
+-----------------------------
+
+User:
+Search OpenAI then read page
+
+Output
+
+{{
+    "steps":[
+        {{
+            "tool":"browser_search",
+            "query":"OpenAI"
+        }},
+        {{
+            "tool":"browser_open_first_result"
         }},
         {{
             "tool":"browser_extract_text",
-            "selector":"p"
+            "selector":"body"
         }}
     ]
 }}
 
--------------------------
+-----------------------------
 
 User:
-Open example.com then take screenshot then close browser
+Search AI Images
 
-Output:
+Output
 
 {{
     "steps":[
         {{
-            "tool":"browser_open",
-            "url":"https://example.com"
-        }},
-        {{
-            "tool":"browser_screenshot",
-            "filename":"example.png"
-        }},
-        {{
-            "tool":"browser_close"
+            "tool":"browser_search_images",
+            "query":"AI"
         }}
     ]
 }}
 
-=========================
+-----------------------------
+
+User:
+Search AI News
+
+Output
+
+{{
+    "steps":[
+        {{
+            "tool":"browser_search_news",
+            "query":"AI"
+        }}
+    ]
+}}
+
+==============================
+
+Selectors
+
+Heading
+"h1"
+
+Sub Heading
+"h2"
+
+Paragraph
+"p"
+
+Whole Page
+"body"
+
+==============================
 
 User Request:
 
@@ -170,25 +234,38 @@ User Request:
             ]
         )
 
-        raw = response["message"]["content"].strip()
+        raw = response["message"]["content"]
 
         print("\n[RAW PLAN]")
         print(raw)
 
-        # Remove markdown if model accidentally returns it
-        raw = raw.replace("```json", "").replace("```", "").strip()
+        raw = raw.replace("```json", "")
+        raw = raw.replace("```", "")
+        raw = raw.strip()
+
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+
+        if match:
+            raw = match.group(0)
 
         try:
+
             plan = json.loads(raw)
 
+            if not isinstance(plan, dict):
+                return {"steps": []}
+
             if "steps" not in plan:
-                print("[ERROR] Missing 'steps' key.")
+                return {"steps": []}
+
+            if not isinstance(plan["steps"], list):
                 return {"steps": []}
 
             return plan
 
-        except json.JSONDecodeError as e:
+        except Exception as e:
 
-            print(f"[ERROR] Invalid JSON: {e}")
+            print("[ERROR]", e)
+            print(raw)
 
             return {"steps": []}

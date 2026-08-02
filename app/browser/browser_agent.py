@@ -1,13 +1,18 @@
 from app.browser.chrome import Chrome
+from app.browser.duckduckgo import DuckDuckGo
 import time
 
 
 class BrowserAgent:
 
+    # ======================================
+    # BASIC BROWSER
+    # ======================================
+
     @staticmethod
     def open(url):
         print(f"[BROWSER] Opening : {url}")
-        Chrome.open(url)
+        return Chrome.open(url)
 
     @staticmethod
     def title():
@@ -19,75 +24,86 @@ class BrowserAgent:
 
     @staticmethod
     def screenshot(filename="screenshot.png"):
-        try:
-            Chrome.screenshot(filename)
-        except Exception as e:
-            print(f"[ERROR] Screenshot Failed : {e}")
+        return Chrome.screenshot(filename)
 
     @staticmethod
     def refresh():
-        Chrome.refresh()
+        return Chrome.refresh()
 
     @staticmethod
     def back():
-        Chrome.back()
+        return Chrome.back()
 
     @staticmethod
     def forward():
-        Chrome.forward()
+        return Chrome.forward()
+
+    # ======================================
+    # ELEMENT ACTIONS
+    # ======================================
 
     @staticmethod
     def click(selector):
 
-        page = Chrome.page()
-
         try:
+
+            page = Chrome.page()
 
             locator = page.locator(selector).first
 
-            locator.wait_for(timeout=5000)
+            locator.wait_for(state="visible", timeout=5000)
 
             locator.click()
 
             print(f"[SUCCESS] Clicked : {selector}")
 
+            return True
+
         except Exception as e:
 
             print(f"[ERROR] Click Failed : {e}")
 
+            return False
+
     @staticmethod
     def type(selector, text):
 
-        page = Chrome.page()
-
         try:
+
+            page = Chrome.page()
 
             locator = page.locator(selector).first
 
-            locator.wait_for(timeout=5000)
+            locator.wait_for(state="visible", timeout=5000)
 
             locator.fill(text)
 
             print(f"[SUCCESS] Typed : {text}")
 
+            return True
+
         except Exception as e:
 
             print(f"[ERROR] Type Failed : {e}")
 
+            return False
+
     @staticmethod
     def press(key):
 
-        page = Chrome.page()
-
         try:
 
-            page.keyboard.press(key)
+            Chrome.page().keyboard.press(key)
 
             print(f"[SUCCESS] Key Pressed : {key}")
+
+            return True
 
         except Exception as e:
 
             print(f"[ERROR] Key Press Failed : {e}")
+
+            return False
 
     @staticmethod
     def wait(seconds):
@@ -96,12 +112,16 @@ class BrowserAgent:
 
         time.sleep(seconds)
 
+    # ======================================
+    # CONTENT
+    # ======================================
+
     @staticmethod
     def extract_text(selector="body"):
 
-        page = Chrome.page()
-
         try:
+
+            page = Chrome.page()
 
             locator = page.locator(selector)
 
@@ -111,7 +131,7 @@ class BrowserAgent:
 
                 return ""
 
-            locator.first.wait_for(timeout=5000)
+            locator.first.wait_for(state="visible", timeout=5000)
 
             text = locator.first.inner_text().strip()
 
@@ -128,11 +148,9 @@ class BrowserAgent:
     @staticmethod
     def exists(selector):
 
-        page = Chrome.page()
-
         try:
 
-            return page.locator(selector).count() > 0
+            return Chrome.page().locator(selector).count() > 0
 
         except Exception:
 
@@ -141,11 +159,9 @@ class BrowserAgent:
     @staticmethod
     def wait_for(selector, timeout=5000):
 
-        page = Chrome.page()
-
         try:
 
-            page.wait_for_selector(
+            Chrome.page().wait_for_selector(
                 selector,
                 timeout=timeout,
                 state="visible"
@@ -164,11 +180,9 @@ class BrowserAgent:
     @staticmethod
     def text_content(selector):
 
-        page = Chrome.page()
-
         try:
 
-            locator = page.locator(selector)
+            locator = Chrome.page().locator(selector)
 
             if locator.count() == 0:
                 return ""
@@ -182,17 +196,42 @@ class BrowserAgent:
     @staticmethod
     def html(selector="body"):
 
-        page = Chrome.page()
-
         try:
 
-            return page.locator(selector).first.inner_html()
+            return Chrome.page().locator(selector).first.inner_html()
 
         except Exception:
 
             return ""
 
+    # ======================================
+    # DUCKDUCKGO
+    # ======================================
+
+    @staticmethod
+    def search(query):
+        return DuckDuckGo.search(query)
+
+    @staticmethod
+    def open_first_result():
+        return DuckDuckGo.open_first_result()
+
+    @staticmethod
+    def search_and_open(query):
+        return DuckDuckGo.search_and_open(query)
+
+    @staticmethod
+    def search_images(query):
+        return DuckDuckGo.search_images(query)
+
+    @staticmethod
+    def search_news(query):
+        return DuckDuckGo.search_news(query)
+
+    # ======================================
+    # CLOSE
+    # ======================================
+
     @staticmethod
     def close():
-
-        Chrome.close()
+        return Chrome.close()
