@@ -59,19 +59,63 @@ Parameters:
 query
 
 ==============================
-Rules
+IMPORTANT RULES
 ==============================
 
 1. Return ONLY valid JSON.
-2. No markdown.
-3. No explanation.
-4. Start with {{
-5. End with }}
-6. Always return:
+2. Never explain.
+3. Never use markdown.
+4. Never write ```json.
+5. Never write text before JSON.
+6. Never write text after JSON.
+7. Response MUST start with {{
+8. Response MUST end with }}
+
+Only return:
 
 {{
     "steps":[]
 }}
+
+Search Rules
+
+If user says:
+
+Search OpenAI
+
+Return
+
+{{
+    "steps":[
+        {{
+            "tool":"browser_search",
+            "query":"OpenAI"
+        }}
+    ]
+}}
+
+Do NOT automatically open first result.
+
+Open first result ONLY when user explicitly says
+
+- open first result
+- open first link
+- visit first result
+- go to first result
+
+Selectors
+
+Heading:
+"h1"
+
+Sub Heading:
+"h2"
+
+Paragraph:
+"p"
+
+Whole Page:
+"body"
 
 ==============================
 Examples
@@ -130,7 +174,7 @@ Output
 -----------------------------
 
 User:
-Search Python Tutorial
+Search Python Tutorial and open first result
 
 Output
 
@@ -203,22 +247,6 @@ Output
 
 ==============================
 
-Selectors
-
-Heading
-"h1"
-
-Sub Heading
-"h2"
-
-Paragraph
-"p"
-
-Whole Page
-"body"
-
-==============================
-
 User Request:
 
 {command}
@@ -226,7 +254,22 @@ User Request:
 
         response = chat(
             model="llama3.2:3b",
+            options={
+                "temperature": 0,
+                "num_predict": 256
+            },
             messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a JSON generator. "
+                        "Return ONLY valid JSON. "
+                        "Never explain anything. "
+                        "Never use markdown. "
+                        "Never write text before JSON. "
+                        "Never write text after JSON."
+                    )
+                },
                 {
                     "role": "user",
                     "content": prompt
@@ -253,19 +296,21 @@ User Request:
             plan = json.loads(raw)
 
             if not isinstance(plan, dict):
-                return {"steps": []}
+                raise ValueError("Planner returned non-object JSON")
 
             if "steps" not in plan:
-                return {"steps": []}
+                raise ValueError("'steps' key missing")
 
             if not isinstance(plan["steps"], list):
-                return {"steps": []}
+                raise ValueError("'steps' must be a list")
 
             return plan
 
         except Exception as e:
 
-            print("[ERROR]", e)
+            print(f"[ERROR] Invalid Planner Output: {e}")
             print(raw)
 
-            return {"steps": []}
+            return {
+                "steps": []
+            }
