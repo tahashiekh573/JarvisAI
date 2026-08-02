@@ -36,13 +36,19 @@ class BrowserExecutor:
 
                 elif tool == "browser_title":
 
-                    BrowserAgent.title()
-                    result = True
+                    title = BrowserAgent.title()
+
+                    if title:
+                        print(f"[TITLE] {title}")
+                        result = True
 
                 elif tool == "browser_current_url":
 
-                    BrowserAgent.current_url()
-                    result = True
+                    url = BrowserAgent.current_url()
+
+                    if url:
+                        print(f"[URL] {url}")
+                        result = True
 
                 elif tool == "browser_extract_text":
 
@@ -50,7 +56,7 @@ class BrowserExecutor:
 
                     text = BrowserAgent.extract_text(selector)
 
-                    result = text != ""
+                    result = bool(text)
 
                 elif tool == "browser_screenshot":
 
@@ -75,14 +81,12 @@ class BrowserExecutor:
                     result = BrowserAgent.close()
 
                 # ======================================
-                # DuckDuckGo Search
+                # DuckDuckGo
                 # ======================================
 
                 elif tool == "browser_search":
 
-                    result = BrowserAgent.search(
-                        step["query"]
-                    )
+                    result = BrowserAgent.search(step["query"])
 
                 elif tool == "browser_open_first_result":
 
@@ -90,26 +94,19 @@ class BrowserExecutor:
 
                 elif tool == "browser_search_and_open":
 
-                    result = BrowserAgent.search_and_open(
-                        step["query"]
-                    )
+                    result = BrowserAgent.search_and_open(step["query"])
 
                 elif tool == "browser_search_images":
 
-                    result = BrowserAgent.search_images(
-                        step["query"]
-                    )
+                    result = BrowserAgent.search_images(step["query"])
 
                 elif tool == "browser_search_news":
 
-                    result = BrowserAgent.search_news(
-                        step["query"]
-                    )
+                    result = BrowserAgent.search_news(step["query"])
 
                 else:
 
-                    print(f"[WARNING] Unknown Tool : {tool}")
-
+                    print(f"[WARNING] Unknown Tool: {tool}")
                     failed += 1
                     continue
 
@@ -121,15 +118,12 @@ class BrowserExecutor:
             except Exception as e:
 
                 failed += 1
-
                 print(f"[ERROR] {e}")
 
         print("\n========== EXECUTION SUMMARY ==========")
-
         print(f"Total Steps : {len(steps)}")
         print(f"Successful : {success}")
         print(f"Failed : {failed}")
-
         print("\n========== DONE ==========\n")
 
         return failed == 0
