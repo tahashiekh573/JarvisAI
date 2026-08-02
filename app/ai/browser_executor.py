@@ -27,7 +27,7 @@ class BrowserExecutor:
             try:
 
                 # ======================================
-                # Browser
+                # BASIC BROWSER
                 # ======================================
 
                 if tool == "browser_open":
@@ -50,20 +50,6 @@ class BrowserExecutor:
                         print(f"[URL] {url}")
                         result = True
 
-                elif tool == "browser_extract_text":
-
-                    selector = step.get("selector", "body")
-
-                    text = BrowserAgent.extract_text(selector)
-
-                    result = bool(text)
-
-                elif tool == "browser_screenshot":
-
-                    filename = step.get("filename", "browser.png")
-
-                    result = BrowserAgent.screenshot(filename)
-
                 elif tool == "browser_refresh":
 
                     result = BrowserAgent.refresh()
@@ -80,8 +66,52 @@ class BrowserExecutor:
 
                     result = BrowserAgent.close()
 
+                elif tool == "browser_screenshot":
+
+                    filename = step.get("filename", "browser.png")
+
+                    result = BrowserAgent.screenshot(filename)
+
                 # ======================================
-                # DuckDuckGo
+                # PAGE READER
+                # ======================================
+
+                elif tool == "browser_extract_text":
+
+                    selector = step.get("selector", "body")
+
+                    text = BrowserAgent.extract_text(selector)
+
+                    if text:
+                        print(f"\n[TEXT]\n{text}\n")
+                        result = True
+
+                elif tool == "browser_read_page":
+
+                    text = BrowserAgent.read_page()
+
+                    if text:
+                        print(f"\n[PAGE]\n{text}\n")
+                        result = True
+
+                elif tool == "browser_read_heading":
+
+                    heading = BrowserAgent.read_heading()
+
+                    if heading:
+                        print(f"\n[HEADING]\n{heading}\n")
+                        result = True
+
+                elif tool == "browser_read_article":
+
+                    article = BrowserAgent.read_article()
+
+                    if article:
+                        print(f"\n[ARTICLE]\n{article}\n")
+                        result = True
+
+                # ======================================
+                # SEARCH
                 # ======================================
 
                 elif tool == "browser_search":
@@ -104,9 +134,13 @@ class BrowserExecutor:
 
                     result = BrowserAgent.search_news(step["query"])
 
+                # ======================================
+                # UNKNOWN
+                # ======================================
+
                 else:
 
-                    print(f"[WARNING] Unknown Tool: {tool}")
+                    print(f"[WARNING] Unknown Tool : {tool}")
                     failed += 1
                     continue
 

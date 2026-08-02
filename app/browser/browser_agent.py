@@ -1,5 +1,6 @@
 from app.browser.chrome import Chrome
 from app.browser.duckduckgo import DuckDuckGo
+from app.browser.page_reader import PageReader
 import time
 
 
@@ -144,6 +145,25 @@ class BrowserAgent:
             print(f"[ERROR] Extract Failed : {e}")
 
             return ""
+
+    # ======================================
+    # SMART PAGE READER
+    # ======================================
+
+    @staticmethod
+    def read_page():
+
+        return PageReader.read_page()
+
+    @staticmethod
+    def read_heading():
+
+        return PageReader.read_heading()
+
+    @staticmethod
+    def read_article():
+
+        return PageReader.read_article()
 
     @staticmethod
     def exists(selector):

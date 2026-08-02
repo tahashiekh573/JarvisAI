@@ -10,27 +10,27 @@ class BrowserPlanner:
         prompt = f"""
 You are Jarvis Browser Planner.
 
-Convert the user's request into browser actions.
+Your job is to convert the user's request into browser actions.
 
-==============================
+Return ONLY valid JSON.
+
+Never explain.
+Never use markdown.
+Never use ```.
+
+Response MUST start with {{
+Response MUST end with }}
+
+==================================
 Available Browser Tools
-==============================
+==================================
 
 browser_open
-Parameters:
 url
 
 browser_title
 
 browser_current_url
-
-browser_extract_text
-Parameters:
-selector
-
-browser_screenshot
-Optional:
-filename
 
 browser_refresh
 
@@ -40,214 +40,293 @@ browser_forward
 
 browser_close
 
+browser_screenshot
+filename (optional)
+
+browser_extract_text
+selector
+
+browser_read_page
+
+browser_read_heading
+
+browser_read_article
+
 browser_search
-Parameters:
 query
 
 browser_open_first_result
 
 browser_search_and_open
-Parameters:
 query
 
 browser_search_images
-Parameters:
 query
 
 browser_search_news
-Parameters:
 query
 
-==============================
-IMPORTANT RULES
-==============================
+==================================
+Rules
+==================================
 
-1. Return ONLY valid JSON.
-2. Never explain.
-3. Never use markdown.
-4. Never write ```json.
-5. Never write text before JSON.
-6. Never write text after JSON.
-7. Response MUST start with {{
-8. Response MUST end with }}
-
-Only return:
+Return ONLY
 
 {{
     "steps":[]
 }}
 
-Search Rules
-
-If user says:
+----------------------------------
 
 Search OpenAI
 
-Return
-
 {{
-    "steps":[
-        {{
-            "tool":"browser_search",
-            "query":"OpenAI"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_search",
+      "query":"OpenAI"
+   }}
+ ]
 }}
 
-Do NOT automatically open first result.
+----------------------------------
 
-Open first result ONLY when user explicitly says
-
-- open first result
-- open first link
-- visit first result
-- go to first result
-
-Selectors
-
-Heading:
-"h1"
-
-Sub Heading:
-"h2"
-
-Paragraph:
-"p"
-
-Whole Page:
-"body"
-
-==============================
-Examples
-==============================
-
-User:
-Open python.org
-
-Output
+Search OpenAI and open first result
 
 {{
-    "steps":[
-        {{
-            "tool":"browser_open",
-            "url":"https://python.org"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_search",
+      "query":"OpenAI"
+   }},
+   {{
+      "tool":"browser_open_first_result"
+   }}
+ ]
 }}
 
------------------------------
+----------------------------------
 
-User:
+Search AI images
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_search_images",
+      "query":"AI"
+   }}
+ ]
+}}
+
+----------------------------------
+
+Search AI news
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_search_news",
+      "query":"AI"
+   }}
+ ]
+}}
+
+----------------------------------
+
+Open github.com
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_open",
+      "url":"https://github.com"
+   }}
+ ]
+}}
+
+----------------------------------
+
+Read page
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_read_page"
+   }}
+ ]
+}}
+
+----------------------------------
+
+Read heading
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_read_heading"
+   }}
+ ]
+}}
+
+----------------------------------
+
+Read article
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_read_article"
+   }}
+ ]
+}}
+
+----------------------------------
+
 Open python.org and read heading
 
-Output
-
 {{
-    "steps":[
-        {{
-            "tool":"browser_open",
-            "url":"https://python.org"
-        }},
-        {{
-            "tool":"browser_extract_text",
-            "selector":"h1"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_open",
+      "url":"https://python.org"
+   }},
+   {{
+      "tool":"browser_read_heading"
+   }}
+ ]
 }}
 
------------------------------
+----------------------------------
 
-User:
-Search ChatGPT
-
-Output
+Open python.org and read page
 
 {{
-    "steps":[
-        {{
-            "tool":"browser_search",
-            "query":"ChatGPT"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_open",
+      "url":"https://python.org"
+   }},
+   {{
+      "tool":"browser_read_page"
+   }}
+ ]
 }}
 
------------------------------
+----------------------------------
 
-User:
-Search Python Tutorial and open first result
-
-Output
+What is page title
 
 {{
-    "steps":[
-        {{
-            "tool":"browser_search",
-            "query":"Python Tutorial"
-        }},
-        {{
-            "tool":"browser_open_first_result"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_title"
+   }}
+ ]
 }}
 
------------------------------
+----------------------------------
 
-User:
-Search OpenAI then read page
-
-Output
+Current URL
 
 {{
-    "steps":[
-        {{
-            "tool":"browser_search",
-            "query":"OpenAI"
-        }},
-        {{
-            "tool":"browser_open_first_result"
-        }},
-        {{
-            "tool":"browser_extract_text",
-            "selector":"body"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_current_url"
+   }}
+ ]
 }}
 
------------------------------
+----------------------------------
 
-User:
-Search AI Images
-
-Output
+Take screenshot
 
 {{
-    "steps":[
-        {{
-            "tool":"browser_search_images",
-            "query":"AI"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_screenshot"
+   }}
+ ]
 }}
 
------------------------------
+----------------------------------
 
-User:
-Search AI News
-
-Output
+Refresh
 
 {{
-    "steps":[
-        {{
-            "tool":"browser_search_news",
-            "query":"AI"
-        }}
-    ]
+ "steps":[
+   {{
+      "tool":"browser_refresh"
+   }}
+ ]
 }}
 
-==============================
+----------------------------------
 
-User Request:
+Back
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_back"
+   }}
+ ]
+}}
+
+----------------------------------
+
+Forward
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_forward"
+   }}
+ ]
+}}
+
+----------------------------------
+
+Close browser
+
+{{
+ "steps":[
+   {{
+      "tool":"browser_close"
+   }}
+ ]
+}}
+
+==================================
+
+Important
+
+Never convert
+
+read page
+
+into browser_search.
+
+Never convert
+
+read heading
+
+into browser_search.
+
+Never convert
+
+read article
+
+into browser_search.
+
+Use browser_read_page,
+browser_read_heading,
+browser_read_article directly.
+
+Only use browser_search when user explicitly says SEARCH.
+
+==================================
+
+User Request
 
 {command}
 """
@@ -256,18 +335,18 @@ User Request:
             model="llama3.2:3b",
             options={
                 "temperature": 0,
-                "num_predict": 256
+                "top_p": 0.1,
+                "num_predict": 200
             },
             messages=[
                 {
                     "role": "system",
                     "content": (
-                        "You are a JSON generator. "
                         "Return ONLY valid JSON. "
-                        "Never explain anything. "
-                        "Never use markdown. "
-                        "Never write text before JSON. "
-                        "Never write text after JSON."
+                        "No explanation. "
+                        "No markdown. "
+                        "No text before JSON. "
+                        "No text after JSON."
                     )
                 },
                 {
@@ -283,8 +362,7 @@ User Request:
         print(raw)
 
         raw = raw.replace("```json", "")
-        raw = raw.replace("```", "")
-        raw = raw.strip()
+        raw = raw.replace("```", "").strip()
 
         match = re.search(r"\{.*\}", raw, re.DOTALL)
 
@@ -296,21 +374,20 @@ User Request:
             plan = json.loads(raw)
 
             if not isinstance(plan, dict):
-                raise ValueError("Planner returned non-object JSON")
+                raise Exception()
 
             if "steps" not in plan:
-                raise ValueError("'steps' key missing")
+                raise Exception()
 
             if not isinstance(plan["steps"], list):
-                raise ValueError("'steps' must be a list")
+                raise Exception()
 
             return plan
 
-        except Exception as e:
+        except Exception:
 
-            print(f"[ERROR] Invalid Planner Output: {e}")
-            print(raw)
+            print("[ERROR] Invalid planner output")
 
             return {
                 "steps": []
-            }    
+            }
